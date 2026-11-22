@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Transaction | FinBotics</title>
+    <style>
+        body {
+            background: #0f172a;
+            color: white;
+            font-family: Arial;
+            padding: 30px;
+        }
+        .container {
+            max-width: 450px;
+            margin: 40px auto;
+            background: #1e293b;
+            padding: 30px;
+            border-radius: 12px;
+        }
+        h2 {
+            color: #60a5fa;
+            text-align: center;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            box-sizing: border-box;
+            border-radius: 5px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        a {
+            color: #60a5fa;
+        }
+        .errorlist {
+            color: #fca5a5;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>
+        {% if edit_mode %}
+            Edit Transaction
+        {% else %}
+            Add Transaction
+        {% endif %}
+    </h2>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save Transaction</button>
+    </form>
+    <p>
+        <a href="{% url 'transactions' %}">
+            Back to Transactions
+        </a>
+    </p>
+</div>
+</body>
+</html>

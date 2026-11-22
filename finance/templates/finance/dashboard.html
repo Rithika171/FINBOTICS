@@ -1,0 +1,559 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinBotics | Dashboard</title>
+    <link rel="stylesheet" href="{% static 'finance/style.css' %}">
+
+    <style>
+        /* RECENT TRANSACTIONS */
+        .recent-transactions {
+            background: white;
+            padding: 25px;
+            border-radius: 14px;
+            box-shadow: 0 4px 15px rgba(15, 23, 42, 0.05);
+            margin-bottom: 40px;
+            overflow-x: auto;
+        }
+
+        .recent-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .recent-header h2 {
+            color: #101d3a;
+            font-size: 22px;
+        }
+
+        .view-all-btn {
+            text-decoration: none;
+            color: #2563eb;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .view-all-btn:hover {
+            text-decoration: underline;
+        }
+
+        .recent-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 450px;
+        }
+
+        .recent-table th,
+        .recent-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .recent-table th {
+            color: #64748b;
+            font-size: 13px;
+            background: #f8fafc;
+        }
+
+        .recent-table td {
+            color: #334155;
+            font-size: 14px;
+        }
+
+        .transaction-type {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .income-type {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .expense-type {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .income-amount {
+            color: #16a34a;
+            font-weight: 700;
+        }
+
+        .expense-amount {
+            color: #dc2626;
+            font-weight: 700;
+        }
+
+        .no-transactions {
+            text-align: center !important;
+            padding: 30px !important;
+            color: #94a3b8 !important;
+        }
+
+        @media (max-width: 600px) {
+            .recent-transactions {
+                padding: 18px;
+            }
+
+            .recent-header {
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="dashboard">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <h2 class="logo">Fin<span>Botics</span></h2>
+
+        <p class="sidebar-label">MAIN MENU</p>
+
+        <nav class="menu">
+            <a href="{% url 'dashboard' %}" class="active">🏠 Dashboard</a>
+            <a href="{% url 'transactions' %}">💳 Transactions</a>
+            <a href="{% url 'add_transaction' %}">➕ Add Transaction</a>
+            <a href="{% url 'set_budget' %}">🎯 Budget Planner</a>
+            <a href="{% url 'ai_insights' %}">🤖 AI Assistant</a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <p>Manage your money smartly.</p>
+
+            <form method="POST" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="logout-btn">↪ Logout</button>
+            </form>
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <!-- TOPBAR -->
+        <header class="topbar">
+            <div>
+                <h1>Dashboard</h1>
+                <p>Welcome back, {{ request.user.username }}!</p>
+            </div>
+
+            <div class="profile">
+                <span class="profile-icon">👤</span>
+                <span>{{ request.user.username }}</span>
+            </div>
+        </header>
+
+
+        <!-- WELCOME SECTION -->
+        <section class="welcome-section">
+            <div>
+                <h2>Welcome to FinBotics! 👋</h2>
+                <p>Your personal AI-powered finance management assistant.</p>
+            </div>
+
+            <a href="{% url 'add_transaction' %}" class="primary-btn">
+                + Add Transaction
+            </a>
+        </section>
+
+
+        <!-- SUMMARY CARDS -->
+        <section class="summary-grid">
+
+            <div class="summary-card income-card">
+                <div class="card-top">
+                    <span>💰 Total Income</span>
+                    <span class="card-icon">↗</span>
+                </div>
+                <h2>₹{{ total_income }}</h2>
+                <p>Your total earnings</p>
+            </div>
+
+            <div class="summary-card expense-card">
+                <div class="card-top">
+                    <span>💸 Total Expenses</span>
+                    <span class="card-icon">↘</span>
+                </div>
+                <h2>₹{{ total_expenses }}</h2>
+                <p>Your total spending</p>
+            </div>
+
+            <div class="summary-card balance-card">
+                <div class="card-top">
+                    <span>🏦 Available Balance</span>
+                    <span class="card-icon">₹</span>
+                </div>
+                <h2>₹{{ balance }}</h2>
+                <p>Your remaining money</p>
+            </div>
+
+        </section>
+
+
+        <!-- FINANCIAL OVERVIEW -->
+        <section class="financial-overview">
+
+            <h2>Financial Overview 📈</h2>
+
+            <p class="section-subtitle">
+                Get a quick overview of your financial health.
+            </p>
+
+            <div class="overview-grid">
+
+                <div class="overview-card">
+                    <h3>💰 Savings Rate</h3>
+                    <div class="overview-value">
+                        {{ savings_rate|floatformat:1 }}%
+                    </div>
+                    <p>Percentage of income saved.</p>
+                </div>
+
+                <div class="overview-card">
+                    <h3>🎯 Budget Usage</h3>
+                    <div class="overview-value">
+                        {{ budget_percentage|floatformat:1 }}%
+                    </div>
+                    <p>Percentage of your budget spent.</p>
+                </div>
+
+                <div class="overview-card">
+                    <h3>❤️ Financial Health</h3>
+                    <div class="health-score">
+                        <span class="health-score-value">
+                            {{ financial_health_score }}
+                        </span>
+                        <span class="health-score-label">/ 100</span>
+                    </div>
+                    <p>Your overall financial health score.</p>
+                </div>
+
+                <div class="overview-card">
+                    <h3>🏦 Available Balance</h3>
+                    <div class="overview-value">
+                        ₹{{ balance }}
+                    </div>
+                    <p>Your remaining money.</p>
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- FINANCIAL ANALYTICS -->
+        <section class="section analytics-section">
+
+            <h2>Financial Analytics 📊</h2>
+
+            <p class="section-subtitle">
+                Understand your financial activities through charts.
+            </p>
+
+            <div class="charts-grid">
+
+                <div class="chart-card">
+                    <h3>Income vs Expenses</h3>
+                    <p>Compare your earnings and spending.</p>
+                    <div class="chart-container">
+                        <canvas id="summaryChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h3>Expense Breakdown</h3>
+                    <p>Understand where your money goes.</p>
+                    <div class="chart-container">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card monthly-chart">
+                    <h3>Monthly Expense Trend</h3>
+                    <p>Track your monthly spending patterns.</p>
+                    <div class="chart-container">
+                        <canvas id="monthlyChart"></canvas>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- RECENT TRANSACTIONS -->
+        <section class="recent-transactions">
+
+            <div class="recent-header">
+                <h2>Recent Transactions 💳</h2>
+
+                <a href="{% url 'transactions' %}" class="view-all-btn">
+                    View All →
+                </a>
+            </div>
+
+            <table class="recent-table">
+
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for transaction in recent_transactions %}
+
+                    <tr>
+                        <td>{{ transaction.date|date:"d M Y" }}</td>
+
+                        <td>
+                            {% if transaction.transaction_type|lower == "income" %}
+                                <span class="transaction-type income-type">
+                                    Income
+                                </span>
+                            {% else %}
+                                <span class="transaction-type expense-type">
+                                    Expense
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if transaction.transaction_type|lower == "income" %}
+                                <span class="income-amount">
+                                    + ₹{{ transaction.amount }}
+                                </span>
+                            {% else %}
+                                <span class="expense-amount">
+                                    - ₹{{ transaction.amount }}
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+                        <td colspan="3" class="no-transactions">
+                            No transactions available yet.
+                            Add your first transaction!
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </section>
+
+
+        <!-- QUICK ACTIONS -->
+        <section class="section">
+
+            <h2>Quick Actions</h2>
+
+            <p class="section-subtitle">
+                Manage your finances easily.
+            </p>
+
+            <div class="actions-grid">
+
+                <a href="{% url 'add_transaction' %}" class="action-card">
+                    <span class="action-icon">➕</span>
+                    <h3>Add Transaction</h3>
+                    <p>Record your income or expenses.</p>
+                </a>
+
+                <a href="{% url 'transactions' %}" class="action-card">
+                    <span class="action-icon">📊</span>
+                    <h3>View Transactions</h3>
+                    <p>Track your financial activities.</p>
+                </a>
+
+                <a href="{% url 'set_budget' %}" class="action-card">
+                    <span class="action-icon">🎯</span>
+                    <h3>Set Budget</h3>
+                    <p>Plan and control your spending.</p>
+                </a>
+
+                <a href="{% url 'ai_insights' %}" class="action-card">
+                    <span class="action-icon">🤖</span>
+                    <h3>AI Finance Assistant</h3>
+                    <p>Get insights about your finances.</p>
+                </a>
+
+                <a href="{% url 'savings_goals' %}" class="action-card">
+                    <span class="action-icon">💰</span>
+                    <h3>Savings Goals</h3>
+                    <p>Track and achieve your savings targets.</p>
+                </a>
+
+                <a href="{% url 'scam_detection' %}" class="action-card">
+                    <span class="action-icon">🛡️</span>
+                    <h3>Scam Detection</h3>
+                    <p>Check suspicious messages for scam risks.</p>
+                </a>
+
+            </div>
+        </section>
+
+
+        <!-- FOOTER -->
+        <footer>
+            <p>© 2026 FinBotics | Smart Money. Safe Future.</p>
+        </footer>
+
+    </main>
+</div>
+
+
+<!-- DJANGO CHART DATA -->
+{{ chart_summary|json_script:"summary-data" }}
+{{ chart_labels|json_script:"category-labels" }}
+{{ chart_values|json_script:"category-values" }}
+{{ month_labels|json_script:"month-labels" }}
+{{ month_values|json_script:"month-values" }}
+
+
+<!-- CHART.JS LIBRARY -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+    const summaryData = JSON.parse(
+        document.getElementById('summary-data').textContent
+    );
+
+    const categoryLabels = JSON.parse(
+        document.getElementById('category-labels').textContent
+    );
+
+    const categoryValues = JSON.parse(
+        document.getElementById('category-values').textContent
+    );
+
+    const monthLabels = JSON.parse(
+        document.getElementById('month-labels').textContent
+    );
+
+    const monthValues = JSON.parse(
+        document.getElementById('month-values').textContent
+    );
+
+
+    // INCOME VS EXPENSES CHART
+    new Chart(document.getElementById('summaryChart'), {
+        type: 'bar',
+
+        data: {
+            labels: ['Income', 'Expenses'],
+
+            datasets: [{
+                label: 'Amount (₹)',
+                data: summaryData,
+                backgroundColor: ['#16a34a', '#ef4444'],
+                borderRadius: 8
+            }]
+        },
+
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+
+    // EXPENSE BREAKDOWN CHART
+    new Chart(document.getElementById('categoryChart'), {
+        type: 'doughnut',
+
+        data: {
+            labels: categoryLabels,
+
+            datasets: [{
+                data: categoryValues,
+
+                backgroundColor: [
+                    '#2563eb',
+                    '#16a34a',
+                    '#f59e0b',
+                    '#ef4444',
+                    '#8b5cf6',
+                    '#06b6d4',
+                    '#ec4899',
+                    '#64748b'
+                ]
+            }]
+        },
+
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+
+
+    // MONTHLY EXPENSE TREND CHART
+    new Chart(document.getElementById('monthlyChart'), {
+        type: 'line',
+
+        data: {
+            labels: monthLabels,
+
+            datasets: [{
+                label: 'Monthly Expenses (₹)',
+                data: monthValues,
+                borderColor: '#2563eb',
+                backgroundColor: 'rgba(37, 99, 235, 0.15)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+</script>
+
+</body>
+</html>

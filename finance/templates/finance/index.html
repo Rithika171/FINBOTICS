@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinBotics | AI Finance Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background: #0f172a;
+            color: white;
+        }
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 22px 8%;
+            background: #1e293b;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #60a5fa;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+        }
+        .hero {
+            text-align: center;
+            padding: 110px 20px;
+        }
+        .hero h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: #60a5fa;
+        }
+        .hero p {
+            font-size: 18px;
+            color: #cbd5e1;
+            margin: 12px;
+            line-height: 1.6;
+        }
+        .btn {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 14px 30px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+        }
+        .btn:hover {
+            background: #1d4ed8;
+        }
+        .features {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 30px 8%;
+        }
+        .card {
+            background: #1e293b;
+            padding: 30px;
+            border-radius: 12px;
+            width: 250px;
+            text-align: center;
+        }
+        .card h3 {
+            color: #60a5fa;
+            margin-bottom: 12px;
+        }
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">FinBotics</div>
+        <div>
+            <a href="/">Home</a>
+            <a href="#features">Features</a>
+        </div>
+    </nav>
+    <section class="hero">
+        <h1>Welcome to FinBotics</h1>
+        <p>Your Smart AI-Powered Personal Finance Assistant</p>
+        <p>
+            Track your expenses, manage your budget,
+            analyze spending and improve your financial health.
+        </p>
+        <a href="{% url 'register' %}" class="btn">
+            Get Started
+        </a>
+        <a href="{% url 'login' %}" class="btn">
+           Login
+        </a>  
+    </section>
+    <section class="features" id="features">
+        <div class="card">
+            <h3>Expense Tracker</h3>
+            <p>Manage and track your daily expenses.</p>
+        </div>
+        <div class="card">
+            <h3>Budget Planner</h3>
+            <p>Plan your monthly budget and savings.</p>
+        </div>
+        <div class="card">
+            <h3>AI Assistant</h3>
+            <p>Get intelligent financial suggestions.</p>
+        </div>
+        <div class="card">
+            <h3>Scam Detection</h3>
+            <p>Check suspicious financial messages.</p>
+        </div>
+    </section>
+    <footer>
+        <p>© 2026 FinBotics | Smart Finance, Smarter Future</p>
+    </footer>
+</body>
+</html>

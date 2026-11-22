@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Transactions | FinBotics</title>
+
+    <style>
+        body {
+            background: #0f172a;
+            color: white;
+            font-family: Arial, sans-serif;
+            padding: 30px;
+        }
+
+        h1 {
+            color: #60a5fa;
+        }
+
+        a {
+            color: #60a5fa;
+            margin-right: 8px;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* FILTER SECTION */
+        .filter-section {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 25px 0;
+        }
+
+        .filter-section h3 {
+            color: #60a5fa;
+            margin-top: 0;
+        }
+
+        .filter-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        label {
+            color: #cbd5e1;
+            font-size: 14px;
+        }
+
+        input, select {
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #475569;
+            background: #0f172a;
+            color: white;
+        }
+
+        .filter-btn {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 11px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .clear-btn {
+            background: #475569;
+            color: white;
+            padding: 11px 18px;
+            border-radius: 6px;
+            text-decoration: none;
+        }
+
+        .filter-error {
+            color: #f87171;
+            margin-top: 15px;
+        }
+
+        /* TABLE */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #1e293b;
+            min-width: 700px;
+        }
+
+        th, td {
+            padding: 14px;
+            border-bottom: 1px solid #475569;
+            text-align: left;
+        }
+
+        th {
+            color: #60a5fa;
+        }
+
+        .income {
+            color: #4ade80;
+        }
+
+        .expense {
+            color: #f87171;
+        }
+
+        button {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 7px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .results-info {
+            color: #cbd5e1;
+            margin-bottom: 15px;
+        }
+
+        .no-records {
+            text-align: center;
+            color: #cbd5e1;
+            padding: 25px;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 15px;
+            }
+
+            .filter-form {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-group input,
+            .filter-group select {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>Transaction History</h1>
+
+<a href="{% url 'add_transaction' %}">
+    + Add Transaction
+</a>
+
+<!-- SEARCH AND FILTER SECTION -->
+
+<div class="filter-section">
+
+    <h3>Search & Filter Transactions</h3>
+
+    <form method="GET" class="filter-form">
+
+        <div class="filter-group">
+            <label>Search</label>
+            <input
+                type="text"
+                name="search"
+                placeholder="Search description or category"
+                value="{{ search_query }}"
+            >
+        </div>
+
+        <div class="filter-group">
+            <label>Transaction Type</label>
+
+            <select name="type">
+                <option value="">All Transactions</option>
+
+                <option value="Income"
+                    {% if selected_type == "Income" %}selected{% endif %}>
+                    Income
+                </option>
+
+                <option value="Expense"
+                    {% if selected_type == "Expense" %}selected{% endif %}>
+                    Expense
+                </option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label>Start Date</label>
+            <input
+                type="date"
+                name="start_date"
+                value="{{ start_date }}"
+            >
+        </div>
+
+        <div class="filter-group">
+            <label>End Date</label>
+            <input
+                type="date"
+                name="end_date"
+                value="{{ end_date }}"
+            >
+        </div>
+
+        <button type="submit" class="filter-btn">
+            Apply Filters
+        </button>
+
+        <a href="{% url 'transactions' %}" class="clear-btn">
+            Clear Filters
+        </a>
+
+    </form>
+
+    {% if filter_error %}
+        <p class="filter-error">{{ filter_error }}</p>
+    {% endif %}
+
+</div>
+
+<!-- TRANSACTION TABLE -->
+
+<p class="results-info">
+    Your transaction records:
+</p>
+
+<div class="table-container">
+
+<table>
+    <tr>
+        <th>Type</th>
+        <th>Category</th>
+        <th>Amount</th>
+        <th>Description</th>
+        <th>Date</th>
+        <th>Actions</th>
+    </tr>
+
+    {% for record in records %}
+
+    <tr>
+        <td>
+            {% if record.transaction_type == "Income" %}
+                <span class="income">Income</span>
+            {% else %}
+                <span class="expense">Expense</span>
+            {% endif %}
+        </td>
+
+        <td>{{ record.category }}</td>
+
+        <td>₹{{ record.amount }}</td>
+
+        <td>{{ record.description }}</td>
+
+        <td>{{ record.date|date:"d M Y" }}</td>
+
+        <td>
+            <a href="{% url 'edit_transaction' record.pk %}">
+                Edit
+            </a>
+
+            <form method="POST"
+                  action="{% url 'delete_transaction' record.pk %}"
+                  style="display:inline">
+
+                {% csrf_token %}
+
+                <button
+                    type="submit"
+                    onclick="return confirm('Delete this transaction?')">
+                    Delete
+                </button>
+
+            </form>
+        </td>
+    </tr>
+
+    {% empty %}
+
+    <tr>
+        <td colspan="6" class="no-records">
+            No matching transactions found.
+        </td>
+    </tr>
+
+    {% endfor %}
+
+</table>
+
+</div>
+
+<br>
+
+<a href="{% url 'dashboard' %}">
+    Back to Dashboard
+</a>
+
+</body>
+</html>

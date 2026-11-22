@@ -1,0 +1,948 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>FinBotics | AI Financial Insights</title>
+
+    <link rel="stylesheet" href="{% static 'finance/style.css' %}">
+
+    <style>
+        .insights-page {
+            max-width: 1200px;
+            margin: auto;
+            padding: 30px;
+        }
+
+        .insights-header {
+            background: linear-gradient(120deg, #172554, #2563eb);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+        }
+
+        .insights-header h1 {
+            margin-bottom: 10px;
+        }
+
+        .insights-summary {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .insight-card {
+            background: white;
+            padding: 25px;
+            border-radius: 14px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        }
+
+        .insight-card p {
+            color: #64748b;
+            margin-bottom: 12px;
+        }
+
+        .insight-card h2 {
+            color: #1e3a8a;
+            overflow-wrap: anywhere;
+        }
+
+        .insight-section {
+            background: white;
+            padding: 25px;
+            border-radius: 14px;
+            margin-bottom: 22px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        .insight-section h2 {
+            color: #172554;
+            margin-bottom: 18px;
+        }
+
+        .suggestion {
+            background: #eff6ff;
+            border-left: 4px solid #2563eb;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            color: #1e3a8a;
+        }
+
+        .category-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .back-link {
+            display: inline-block;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+
+        .back-link:hover {
+            background: #1d4ed8;
+        }
+
+        /* FINANCIAL HEALTH SCORE */
+
+        .health-card {
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 16px;
+            margin: 25px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            border: 1px solid #e5e7eb;
+        }
+
+        .health-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .health-header h3 {
+            color: #1e293b;
+            font-size: 21px;
+            margin: 0;
+        }
+
+        .health-status {
+            background: #dcfce7;
+            color: #166534;
+            padding: 7px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .health-score {
+            font-size: 42px;
+            font-weight: bold;
+            color: #2563eb;
+            margin: 20px 0;
+        }
+
+        .health-score span {
+            font-size: 20px;
+            color: #64748b;
+        }
+
+        .health-progress {
+            width: 100%;
+            height: 12px;
+            background: #e2e8f0;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .health-progress-fill {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, #2563eb, #16a34a);
+            border-radius: 20px;
+            transition: width 0.5s ease;
+        }
+
+        .health-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 25px;
+        }
+
+        .health-details div {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .health-details span {
+            color: #475569;
+        }
+
+        .health-details strong {
+            color: #1e293b;
+        }
+
+        /* SCAM DETECTION SHORTCUT */
+
+        .scam-shortcut {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            background: linear-gradient(120deg, #172554, #2563eb);
+            color: white;
+            padding: 22px;
+            border-radius: 14px;
+            margin: 20px 0 25px;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: transform 0.2s ease;
+        }
+
+        .scam-shortcut:hover {
+            transform: translateY(-3px);
+            color: white;
+        }
+
+        .scam-shortcut h3 {
+            margin: 0 0 8px;
+            color: white;
+        }
+
+        .scam-shortcut p {
+            margin: 0;
+            color: #dbeafe;
+        }
+
+        .scam-shortcut span {
+            background: white;
+            color: #1d4ed8;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        /* CHATBOT */
+
+        .chatbot-section {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            margin: 25px 0;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+        }
+
+        .chatbot-header {
+            background: linear-gradient(120deg, #172554, #2563eb);
+            color: white;
+            padding: 22px;
+        }
+
+        .chatbot-header h2 {
+            margin: 0 0 7px;
+            color: white;
+        }
+
+        .chatbot-header p {
+            margin: 0;
+            color: #dbeafe;
+        }
+
+        .chat-messages {
+            height: 350px;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8fafc;
+        }
+
+        .chat-message {
+            max-width: 85%;
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            line-height: 1.5;
+            overflow-wrap: anywhere;
+        }
+
+        .bot-message {
+            background: #e0ecff;
+            color: #1e3a8a;
+            margin-right: auto;
+        }
+
+        .user-message {
+            background: #2563eb;
+            color: white;
+            margin-left: auto;
+        }
+
+        .chat-input-area {
+            display: flex;
+            gap: 10px;
+            padding: 15px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .chat-input-area input {
+            flex: 1;
+            min-width: 0;
+            padding: 13px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        .chat-input-area input:focus {
+            border-color: #2563eb;
+        }
+
+        .chat-input-area button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .chat-input-area button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* QUICK QUESTIONS */
+
+        .chat-examples {
+            padding: 15px;
+            background: white;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .quick-question {
+            display: inline-block;
+            background: #eff6ff;
+            color: #1d4ed8;
+            border: 1px solid #bfdbfe;
+            padding: 9px 14px;
+            margin: 6px 5px 3px 0;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: 0.2s;
+        }
+
+        .quick-question:hover {
+            background: #2563eb;
+            color: white;
+        }
+
+        @media (max-width: 700px) {
+
+            .insights-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .insights-page {
+                padding: 15px;
+            }
+
+            .health-details {
+                grid-template-columns: 1fr;
+            }
+
+            .chat-messages {
+                height: 320px;
+            }
+
+            .chat-message {
+                max-width: 95%;
+            }
+
+            .chat-input-area {
+                flex-wrap: wrap;
+            }
+
+            .chat-input-area input {
+                width: 100%;
+                flex-basis: 100%;
+            }
+
+            .chat-input-area button {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="insights-page">
+
+    <!-- HEADER -->
+
+    <header class="insights-header">
+
+        <h1>🤖 FinBotics AI Finance Assistant</h1>
+
+        <p>
+            Understand your spending habits and make smarter
+            financial decisions.
+        </p>
+
+    </header>
+
+    <!-- SCAM DETECTION SHORTCUT -->
+
+    <a href="{% url 'scam_detection' %}" class="scam-shortcut">
+
+        <div>
+            <h3>🛡️ Scam Detection Center</h3>
+
+            <p>
+                Check suspicious SMS, WhatsApp messages
+                and payment requests.
+            </p>
+        </div>
+
+        <span>Check Now →</span>
+
+    </a>
+
+    <!-- FINANCIAL SUMMARY -->
+
+    <section class="insights-summary">
+
+        <div class="insight-card">
+            <p>💰 Total Income</p>
+            <h2>₹{{ income }}</h2>
+        </div>
+
+        <div class="insight-card">
+            <p>💸 Total Expenses</p>
+            <h2>₹{{ total_expenses }}</h2>
+        </div>
+
+        <div class="insight-card">
+            <p>📊 Remaining Balance</p>
+            <h2>₹{{ balance }}</h2>
+        </div>
+
+    </section>
+
+    <!-- FINANCIAL HEALTH SCORE -->
+
+    <section class="health-card">
+
+        <div class="health-header">
+
+            <h3>💙 Financial Health Score</h3>
+
+            <span class="health-status">
+                {{ financial_health_status }}
+            </span>
+
+        </div>
+
+        <div class="health-score">
+            {{ financial_health_score }}<span> / 100</span>
+        </div>
+
+        <div class="health-progress">
+
+            <div
+                class="health-progress-fill"
+                id="healthProgressFill"
+                data-score="{{ financial_health_score|default:0 }}">
+            </div>
+
+        </div>
+
+        <div class="health-details">
+
+            <div>
+                <span>💰 Savings</span>
+                <strong>{{ savings_score }}/30</strong>
+            </div>
+
+            <div>
+                <span>📊 Expense Management</span>
+                <strong>{{ expense_score }}/30</strong>
+            </div>
+
+            <div>
+                <span>🎯 Budget Management</span>
+                <strong>{{ budget_score }}/20</strong>
+            </div>
+
+            <div>
+                <span>💵 Income vs Expenses</span>
+                <strong>{{ income_score }}/20</strong>
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- SAVINGS ANALYSIS -->
+
+    <section class="insight-section">
+
+        <h2>💰 Savings Analysis</h2>
+
+        <div class="insight-card">
+
+            <p>Your Savings Rate</p>
+
+            <h2>{{ savings_rate|floatformat:2 }}%</h2>
+
+            {% if savings_rate >= 20 %}
+
+                <p style="color:green;">
+                    Excellent! You have a healthy savings rate.
+                </p>
+
+            {% elif savings_rate > 0 %}
+
+                <p style="color:orange;">
+                    Try to increase your savings.
+                </p>
+
+            {% else %}
+
+                <p style="color:red;">
+                    Your savings need improvement.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+    <!-- MONTHLY COMPARISON -->
+
+    <section class="insight-section">
+
+        <h2>📅 Monthly Financial Comparison</h2>
+
+        <div class="insights-summary">
+
+            <div class="insight-card">
+                <p>Current Month Income</p>
+                <h2>₹{{ current_income }}</h2>
+            </div>
+
+            <div class="insight-card">
+                <p>Current Month Expenses</p>
+                <h2>₹{{ current_expenses }}</h2>
+            </div>
+
+            <div class="insight-card">
+                <p>Previous Month Expenses</p>
+                <h2>₹{{ previous_expenses }}</h2>
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- SPENDING ANALYSIS -->
+
+    <section class="insight-section">
+
+        <h2>🔍 Spending Analysis</h2>
+
+        {% if highest_category %}
+
+            <p>
+                Your highest spending category is
+                <strong>{{ highest_category }}</strong>.
+            </p>
+
+            <h3>Amount Spent: ₹{{ highest_amount }}</h3>
+
+        {% else %}
+
+            <p>No expense records available.</p>
+
+        {% endif %}
+
+    </section>
+
+    <!-- AI SUGGESTIONS -->
+
+    <section class="insight-section">
+
+        <h2>💡 AI Saving Suggestions</h2>
+
+        {% for suggestion in suggestions %}
+
+            <div class="suggestion">
+                💡 {{ suggestion }}
+            </div>
+
+        {% empty %}
+
+            <p>No suggestions available.</p>
+
+        {% endfor %}
+
+    </section>
+
+    <!-- RISKY SPENDING -->
+
+    <section class="insight-section">
+
+        <h2>⚠️ Risky Spending Patterns</h2>
+
+        {% for pattern in risky_patterns %}
+
+            <div class="suggestion">
+                ⚠️ {{ pattern }}
+            </div>
+
+        {% empty %}
+
+            <p>No risky patterns detected.</p>
+
+        {% endfor %}
+
+    </section>
+
+    <!-- UNUSUAL EXPENSES -->
+
+    <section class="insight-section">
+
+        <h2>⚠️ Unusual Expense Detection</h2>
+
+        {% if unusual_expenses %}
+
+            {% for item in unusual_expenses %}
+
+                <div class="suggestion" style="border-left-color:#dc2626;">
+
+                    <h3>⚠️ Unusual {{ item.category }} Spending</h3>
+
+                    <p>
+                        Previous Month:
+                        ₹{{ item.previous_amount }}
+                    </p>
+
+                    <p>
+                        Current Month:
+                        ₹{{ item.current_amount }}
+                    </p>
+
+                    <h3 style="color:red;">
+                        Increased by {{ item.increase }}%
+                    </h3>
+
+                    <p>
+                        Recommendation: Review your
+                        {{ item.category }} expenses
+                        and reduce unnecessary spending.
+                    </p>
+
+                </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <p>
+                ✅ No unusual expense increases detected.
+            </p>
+
+        {% endif %}
+
+    </section>
+
+    <!-- CATEGORY ANALYSIS -->
+
+    <section class="insight-section">
+
+        <h2>📂 Category-wise Expenses</h2>
+
+        {% for item in category_data %}
+
+            <div class="category-row">
+
+                <span>{{ item.category }}</span>
+
+                <strong>₹{{ item.total }}</strong>
+
+            </div>
+
+        {% empty %}
+
+            <p>No expenses available.</p>
+
+        {% endfor %}
+
+    </section>
+
+    <!-- FINBOTICS CHATBOT -->
+
+    <section class="chatbot-section">
+
+        <div class="chatbot-header">
+
+            <h2>🤖 FinBotics Smart Chatbot</h2>
+
+            <p>
+                Ask questions about your income, expenses,
+                savings and budget.
+            </p>
+
+        </div>
+
+        <div class="chat-messages" id="chatMessages" aria-live="polite">
+
+            <div class="chat-message bot-message">
+                Hello! 👋 I'm your FinBotics Finance Assistant.
+                Ask me about your income, expenses, balance,
+                savings or budget.
+            </div>
+
+        </div>
+
+        <form
+            id="chatForm"
+            data-url="{% url 'chatbot_response' %}">
+
+            {% csrf_token %}
+
+            <div class="chat-input-area">
+
+                <input
+                    type="text"
+                    id="chatInput"
+                    name="message"
+                    placeholder="Ask your financial question..."
+                    maxlength="500"
+                    autocomplete="off"
+                    required
+                >
+
+                <button type="submit" id="sendButton">
+                    Send ➤
+                </button>
+
+            </div>
+
+        </form>
+
+        <!-- CLICKABLE QUICK QUESTIONS -->
+
+        <div class="chat-examples">
+
+            <strong>💡 Quick Questions:</strong>
+
+            <div>
+
+                <button type="button" class="quick-question">
+                    💰 What is my income?
+                </button>
+
+                <button type="button" class="quick-question">
+                    💸 How much did I spend?
+                </button>
+
+                <button type="button" class="quick-question">
+                    📊 What is my balance?
+                </button>
+
+                <button type="button" class="quick-question">
+                    🎯 How can I save more?
+                </button>
+
+                <button type="button" class="quick-question">
+                    📅 What is my monthly spending?
+                </button>
+
+                <button type="button" class="quick-question">
+                    📂 Which category costs me the most?
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- BACK TO DASHBOARD -->
+
+    <a href="{% url 'dashboard' %}" class="back-link">
+        ← Back to Dashboard
+    </a>
+
+    <footer style="text-align:center; margin-top:30px;">
+        © 2026 FinBotics | Smart Money. Safe Future.
+    </footer>
+
+</div>
+
+<!-- CHATBOT JAVASCRIPT -->
+
+<script>
+
+    // FINANCIAL HEALTH PROGRESS BAR
+
+    const healthProgressFill = document.getElementById(
+        "healthProgressFill"
+    );
+
+    if (healthProgressFill) {
+
+        const healthScore = Number(
+            healthProgressFill.dataset.score
+        );
+
+        const safeHealthScore = Math.min(
+            100,
+            Math.max(0, healthScore)
+        );
+
+        healthProgressFill.style.width = safeHealthScore + "%";
+
+    }
+
+
+    // CHATBOT ELEMENTS
+
+    const chatForm = document.getElementById("chatForm");
+
+    const chatInput = document.getElementById("chatInput");
+
+    const chatMessages = document.getElementById("chatMessages");
+
+    const sendButton = document.getElementById("sendButton");
+
+    const chatbotUrl = chatForm.dataset.url;
+
+
+    // ADD CHAT MESSAGE
+
+    function addMessage(message, className) {
+
+        const messageDiv = document.createElement("div");
+
+        messageDiv.className = "chat-message " + className;
+
+        // Safely display message text.
+
+        messageDiv.textContent = message;
+
+        chatMessages.appendChild(messageDiv);
+
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    }
+
+
+    // SEND CHATBOT MESSAGE
+
+    chatForm.addEventListener("submit", async function(event) {
+
+        event.preventDefault();
+
+        const message = chatInput.value.trim();
+
+        if (!message) {
+            return;
+        }
+
+        addMessage(message, "user-message");
+
+        chatInput.value = "";
+
+        sendButton.disabled = true;
+
+        sendButton.textContent = "Sending...";
+
+        const formData = new FormData(chatForm);
+
+        formData.set("message", message);
+
+        try {
+
+            const response = await fetch(
+                chatbotUrl,
+                {
+                    method: "POST",
+
+                    body: formData,
+
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest"
+                    }
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.reply || "Unable to get a response."
+                );
+
+            }
+
+            if (typeof data.reply !== "string") {
+
+                throw new Error("Invalid chatbot response.");
+
+            }
+
+            addMessage(data.reply, "bot-message");
+
+        } catch (error) {
+
+            addMessage(
+                "Sorry, something went wrong. Please try again.",
+                "bot-message"
+            );
+
+            console.error("Chatbot error:", error);
+
+        } finally {
+
+            sendButton.disabled = false;
+
+            sendButton.textContent = "Send ➤";
+
+            chatInput.focus();
+
+        }
+
+    });
+
+
+    // QUICK QUESTION BUTTONS
+
+    document.querySelectorAll(".quick-question").forEach(function(button) {
+
+        button.addEventListener("click", function() {
+
+            if (sendButton.disabled) {
+                return;
+            }
+
+            chatInput.value = this.textContent.trim();
+
+            chatForm.requestSubmit();
+
+        });
+
+    });
+
+</script>
+
+</body>
+</html>

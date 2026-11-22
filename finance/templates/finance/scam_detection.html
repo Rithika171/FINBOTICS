@@ -1,0 +1,742 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>FinBotics | Scam Detection</title>
+
+    <link rel="stylesheet" href="{% static 'finance/style.css' %}">
+
+    <style>
+
+        .scam-page {
+            max-width: 950px;
+            margin: auto;
+            padding: 30px;
+        }
+
+        .scam-header {
+            background: linear-gradient(120deg, #172554, #2563eb);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+        }
+
+        .scam-card {
+            background: white;
+            padding: 28px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+            margin-bottom: 25px;
+        }
+
+        .scam-card h2 {
+            color: #172554;
+            margin-bottom: 15px;
+        }
+
+        .scam-input {
+            width: 100%;
+            min-height: 160px;
+            padding: 15px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 15px;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+
+        .scam-input:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        .scam-button {
+            background: #2563eb;
+            color: white;
+            padding: 13px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        .scam-button:hover {
+            background: #1d4ed8;
+        }
+
+        .result-card {
+            background: #eff6ff;
+            padding: 22px;
+            border-radius: 12px;
+            border-left: 5px solid #2563eb;
+        }
+
+        .risk-score {
+            font-size: 35px;
+            font-weight: bold;
+            color: #1d4ed8;
+        }
+
+        .risk-high {
+            color: #dc2626;
+        }
+
+        .risk-medium {
+            color: #d97706;
+        }
+
+        .risk-low {
+            color: #15803d;
+        }
+
+        .warning-item {
+            background: white;
+            padding: 13px;
+            margin-top: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #f59e0b;
+        }
+
+        .safety-note {
+            background: #fef3c7;
+            padding: 15px;
+            border-radius: 10px;
+            color: #92400e;
+            margin-top: 20px;
+        }
+
+        .back-link {
+            display: inline-block;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+        }
+
+        /* Risk Progress Bar */
+
+        .risk-progress-container {
+            width: 100%;
+            height: 14px;
+            background: #e2e8f0;
+            border-radius: 20px;
+            overflow: hidden;
+            margin: 15px 0 20px;
+        }
+
+        .risk-progress-bar {
+            height: 100%;
+            width: 0;
+            border-radius: 20px;
+            transition: width 0.5s ease;
+        }
+
+        .risk-progress-high {
+            background: #dc2626;
+        }
+
+        .risk-progress-medium {
+            background: #f59e0b;
+        }
+
+        .risk-progress-low {
+            background: #16a34a;
+        }
+
+        .recommendation-item {
+            background: #eff6ff;
+            border-left: 4px solid #2563eb;
+            padding: 14px;
+            margin-top: 10px;
+            border-radius: 8px;
+            color: #1e3a8a;
+        }
+
+        /* Detailed Scam Explanation */
+
+        .detailed-explanation {
+            background: #eff6ff;
+            border-left: 5px solid #2563eb;
+            padding: 18px;
+            border-radius: 10px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .detailed-explanation h3 {
+            color: #1e3a8a;
+            margin-bottom: 15px;
+        }
+
+        .explanation-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 12px;
+            color: #334155;
+        }
+
+        .explanation-item p {
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        /* Scam History */
+
+        .history-item {
+            background: #f8fafc;
+            padding: 16px;
+            margin-top: 12px;
+            border-radius: 10px;
+            border-left: 4px solid #2563eb;
+            overflow-wrap: anywhere;
+        }
+
+        .history-item p {
+            margin: 7px 0;
+        }
+
+        .history-date {
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        /* Scam Summary Cards */
+
+        .scam-summary {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 22px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+            text-align: center;
+            border-top: 4px solid #2563eb;
+        }
+
+        .summary-card h3 {
+            color: #64748b;
+            font-size: 15px;
+            margin-bottom: 10px;
+        }
+
+        .summary-card p {
+            font-size: 30px;
+            font-weight: bold;
+            color: #172554;
+            margin: 0;
+        }
+
+        .summary-card.high {
+            border-top-color: #dc2626;
+        }
+
+        .summary-card.medium {
+            border-top-color: #f59e0b;
+        }
+
+        .summary-card.low {
+            border-top-color: #16a34a;
+        }
+
+        @media (max-width: 600px) {
+
+            .scam-page {
+                padding: 15px;
+            }
+
+            .scam-summary {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* PDF Download / Print Styling */
+
+        @media print {
+
+            body * {
+                visibility: hidden;
+            }
+
+            .scam-header,
+            .scam-header *,
+            #scam-report,
+            #scam-report * {
+                visibility: visible;
+            }
+
+            .scam-header {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                box-sizing: border-box;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            #scam-report {
+                position: absolute;
+                top: 150px;
+                left: 0;
+                width: 100%;
+                box-sizing: border-box;
+                box-shadow: none;
+            }
+
+            #scam-report button {
+                display: none;
+            }
+
+            .safety-note,
+            .result-card,
+            .warning-item,
+            .recommendation-item,
+            .detailed-explanation {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="scam-page">
+
+        <!-- Header -->
+
+        <header class="scam-header">
+
+            <h1>🛡️ FinBotics Scam Detector</h1>
+
+            <p>
+                Check suspicious messages and identify
+                possible financial scam indicators.
+            </p>
+
+        </header>
+
+        <!-- Scam Detection Summary -->
+
+        <div class="scam-summary">
+
+            <div class="summary-card">
+                <h3>Total Checks</h3>
+                <p>{{ total_checks }}</p>
+            </div>
+
+            <div class="summary-card high">
+                <h3>High-Risk Alerts</h3>
+                <p>{{ high_risk_count }}</p>
+            </div>
+
+            <div class="summary-card medium">
+                <h3>Medium-Risk Alerts</h3>
+                <p>{{ medium_risk_count }}</p>
+            </div>
+
+            <div class="summary-card low">
+                <h3>Low-Risk Checks</h3>
+                <p>{{ low_risk_count }}</p>
+            </div>
+
+        </div>
+
+        <!-- Risk Distribution Chart -->
+
+        <section class="scam-card">
+
+            <h2>📊 Risk Distribution</h2>
+
+            <canvas
+                id="riskChart"
+                data-high="{{ high_risk_count|default:0 }}"
+                data-medium="{{ medium_risk_count|default:0 }}"
+                data-low="{{ low_risk_count|default:0 }}">
+            </canvas>
+
+        </section>
+
+        <!-- Message Input -->
+
+        <section class="scam-card">
+
+            <h2>🔍 Check a Suspicious Message</h2>
+
+            <p>
+                Paste an SMS, WhatsApp message or payment
+                request below.
+            </p>
+
+            <form method="POST">
+
+                {% csrf_token %}
+
+                <textarea
+                    name="message"
+                    class="scam-input"
+                    placeholder="Paste your suspicious message here..."
+                    required>{{ message }}</textarea>
+
+                <button type="submit" class="scam-button">
+                    🔍 Check for Scam
+                </button>
+
+            </form>
+
+        </section>
+
+        <!-- Scam Detection Result -->
+
+        {% if result %}
+
+            <section class="scam-card" id="scam-report">
+
+                <h2>📊 Scam Detection Result</h2>
+
+                <div class="result-card">
+
+                    <p><strong>Risk Level:</strong></p>
+
+                    {% if result.risk_level == "High Risk" %}
+
+                        <h2 class="risk-high">
+                            ⚠️ {{ result.risk_level }}
+                        </h2>
+
+                    {% elif result.risk_level == "Medium Risk" %}
+
+                        <h2 class="risk-medium">
+                            ⚠️ {{ result.risk_level }}
+                        </h2>
+
+                    {% else %}
+
+                        <h2 class="risk-low">
+                            ✅ {{ result.risk_level }}
+                        </h2>
+
+                    {% endif %}
+
+                    <!-- Risk Score -->
+
+                    <p class="risk-score">
+                        {{ result.risk_score }}/100
+                    </p>
+
+                    <!-- Progress Bar -->
+
+                    <div class="risk-progress-container">
+
+                        <div
+                            class="risk-progress-bar
+                            {% if result.risk_level == 'High Risk' %}
+                                risk-progress-high
+                            {% elif result.risk_level == 'Medium Risk' %}
+                                risk-progress-medium
+                            {% else %}
+                                risk-progress-low
+                            {% endif %}"
+                            data-score="{{ result.risk_score|default:0 }}">
+                        </div>
+
+                    </div>
+
+                    <!-- Score Explanation -->
+
+                    <h3>📊 Why This Risk Score?</h3>
+
+                    {% for explanation in result.score_explanation %}
+
+                        <div class="recommendation-item">
+                            {{ explanation }}
+                        </div>
+
+                    {% endfor %}
+
+                    <!-- Detailed Scam Explanation -->
+
+                    <div class="detailed-explanation">
+
+                        <h3>🔍 Why Is This Message Suspicious?</h3>
+
+                        {% for explanation in result.detailed_explanations %}
+
+                            <div class="explanation-item">
+
+                                <span>⚠️</span>
+
+                                <p>{{ explanation }}</p>
+
+                            </div>
+
+                        {% empty %}
+
+                            <p>No additional explanation is available.</p>
+
+                        {% endfor %}
+
+                    </div>
+
+                    <!-- Warnings -->
+
+                    <h3>⚠️ Detected Warning Signs</h3>
+
+                    {% for warning in result.warnings %}
+
+                        <div class="warning-item">
+                            {{ warning }}
+                        </div>
+
+                    {% endfor %}
+
+                    <!-- Safety Recommendations -->
+
+                    <h3 style="margin-top: 25px;">
+                        🛡️ Safety Recommendations
+                    </h3>
+
+                    {% for recommendation in result.recommendations %}
+
+                        <div class="recommendation-item">
+                            🛡️ {{ recommendation }}
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+                <!-- Safety Reminder -->
+
+                <div class="safety-note">
+
+                    <strong>Safety Reminder:</strong>
+
+                    Never share your OTP, UPI PIN, ATM PIN
+                    or banking password.
+
+                    A low-risk result does not guarantee
+                    that a message is genuine.
+
+                </div>
+
+                <!-- Download PDF Button -->
+
+                <button
+                    type="button"
+                    onclick="window.print()"
+                    class="scam-button">
+
+                    📄 Download Scam Report (PDF)
+
+                </button>
+
+            </section>
+
+        {% endif %}
+
+        <!-- Scam Detection History -->
+
+        <section class="scam-card">
+
+            <h2>📜 Scam Detection History</h2>
+
+            <p>View your latest 10 previously checked messages.</p>
+
+            {% if history %}
+
+                {% for item in history %}
+
+                    <div class="history-item">
+
+                        <p>
+                            <strong>Message:</strong>
+                            {{ item.message|truncatechars:100 }}
+                        </p>
+
+                        <p>
+                            <strong>Risk Score:</strong>
+                            {{ item.risk_score }}/100
+                        </p>
+
+                        <p>
+                            <strong>Risk Level:</strong>
+
+                            {% if item.risk_level == "High Risk" %}
+
+                                <span class="risk-high">
+                                    ⚠️ {{ item.risk_level }}
+                                </span>
+
+                            {% elif item.risk_level == "Medium Risk" %}
+
+                                <span class="risk-medium">
+                                    ⚠️ {{ item.risk_level }}
+                                </span>
+
+                            {% else %}
+
+                                <span class="risk-low">
+                                    ✅ {{ item.risk_level }}
+                                </span>
+
+                            {% endif %}
+
+                        </p>
+
+                        <p class="history-date">
+                            Checked on:
+                            {{ item.created_at|date:"d M Y, h:i A" }}
+                        </p>
+
+                        <form
+                            method="POST"
+                            action="{% url 'delete_scam_history' item.id %}">
+
+                            {% csrf_token %}
+
+                            <button
+                                type="submit"
+                                style="
+                                    background: #dc2626;
+                                    color: white;
+                                    border: none;
+                                    padding: 8px 15px;
+                                    border-radius: 6px;
+                                    cursor: pointer;
+                                    margin-top: 10px;
+                                ">
+
+                                🗑️ Delete
+
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                {% endfor %}
+
+            {% else %}
+
+                <p>No previous scam checks found.</p>
+
+            {% endif %}
+
+        </section>
+
+        <!-- Back Link -->
+
+        <a href="{% url 'dashboard' %}" class="back-link">
+            ← Back to Dashboard
+        </a>
+
+        <footer style="text-align: center; margin-top: 30px;">
+            © 2026 FinBotics | Smart Money. Safe Future.
+        </footer>
+
+    </div>
+
+    <!-- Chart.js -->
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+
+        // Risk Progress Bar
+
+        document.querySelectorAll(".risk-progress-bar").forEach(function(bar) {
+
+            const score = Number(bar.dataset.score);
+
+            const safeScore = Math.min(100, Math.max(0, score));
+
+            bar.style.width = safeScore + "%";
+
+        });
+
+        // Risk Distribution Chart
+
+        const ctx = document.getElementById("riskChart");
+
+        if (ctx) {
+
+            const highRisk = Number(ctx.dataset.high || 0);
+            const mediumRisk = Number(ctx.dataset.medium || 0);
+            const lowRisk = Number(ctx.dataset.low || 0);
+
+            new Chart(ctx, {
+
+                type: "pie",
+
+                data: {
+
+                    labels: [
+                        "High Risk",
+                        "Medium Risk",
+                        "Low Risk"
+                    ],
+
+                    datasets: [{
+
+                        data: [
+                            highRisk,
+                            mediumRisk,
+                            lowRisk
+                        ],
+
+                        backgroundColor: [
+                            "#dc2626",
+                            "#f59e0b",
+                            "#16a34a"
+                        ]
+
+                    }]
+
+                },
+
+                options: {
+
+                    responsive: true,
+
+                    plugins: {
+
+                        legend: {
+                            position: "bottom"
+                        },
+
+                        title: {
+                            display: true,
+                            text: "Scam Detection Risk Distribution"
+                        }
+
+                    }
+
+                }
+
+            });
+
+        }
+
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,119 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>FinBotics | Edit Savings Goal</title>
+
+    <link rel="stylesheet" href="{% static 'finance/style.css' %}">
+
+    <style>
+        .edit-container {
+            max-width: 550px;
+            margin: 60px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #173b68;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-top: 18px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin-top: 8px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 25px;
+            padding: 13px;
+            background: #1769aa;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #104b7b;
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="edit-container">
+
+    <h1>Edit Savings Goal</h1>
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        <label>Goal Name</label>
+
+        <input
+            type="text"
+            name="title"
+            value="{{ goal.title }}"
+            required
+        >
+
+        <label>Target Amount (₹)</label>
+
+        <input
+            type="number"
+            name="target_amount"
+            value="{{ goal.target_amount }}"
+            min="{{ goal.saved_amount }}"
+            step="0.01"
+            required
+        >
+
+        <p>Already Saved: ₹{{ goal.saved_amount }}</p>
+
+        <label>Target Date</label>
+
+        <input
+            type="date"
+            name="deadline"
+            value="{{ goal.deadline|date:'Y-m-d' }}"
+        >
+
+        <button type="submit">
+            Update Goal
+        </button>
+
+    </form>
+
+    <a href="{% url 'savings_goals' %}" class="back-link">
+        ← Back to Savings Goals
+    </a>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,371 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>FinBotics | Smart Budget</title>
+
+    <link rel="stylesheet" href="{% static 'finance/style.css' %}">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        .budget-alert {
+            padding: 16px 20px;
+            margin: 20px 0;
+            border-radius: 12px;
+            font-weight: 600;
+            line-height: 1.6;
+        }
+
+        .budget-alert p {
+            margin: 8px 0 0;
+        }
+
+        .success-message {
+            background: #dcfce7;
+            color: #166534;
+            border-left: 5px solid #16a34a;
+        }
+
+        .warning-message {
+            background: #fef3c7;
+            color: #92400e;
+            border-left: 5px solid #f59e0b;
+        }
+
+        .danger-message {
+            background: #fee2e2;
+            color: #991b1b;
+            border-left: 5px solid #dc2626;
+        }
+
+        .budget-alert.neutral {
+            background: #e0f2fe;
+            color: #075985;
+            border-left: 5px solid #0284c7;
+        }
+
+        .progress-fill {
+            transition: width 0.5s ease;
+        }
+
+        .budget-progress-card {
+            margin-bottom: 25px;
+        }
+
+        @media (max-width: 600px) {
+            .budget-alert {
+                padding: 13px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="budget-page">
+
+    <!-- Header -->
+    <header class="budget-header">
+        <div>
+            <h1>Smart Budget Planner 🎯</h1>
+            <p>Track your spending and manage your monthly budget.</p>
+        </div>
+
+        <a href="{% url 'dashboard' %}" class="back-btn">
+            ← Dashboard
+        </a>
+    </header>
+
+
+    <!-- Budget Summary -->
+    <section class="budget-summary">
+
+        <div class="budget-card">
+            <p>Monthly Budget</p>
+            <h2>₹{{ budget|default:0 }}</h2>
+        </div>
+
+        <div class="budget-card">
+            <p>Total Expenses</p>
+            <h2>₹{{ total_expenses|default:0 }}</h2>
+        </div>
+
+        <div class="budget-card">
+            <p>Remaining Budget</p>
+            <h2>₹{{ remaining_budget|default:0 }}</h2>
+        </div>
+
+    </section>
+
+
+    <!-- Budget Progress -->
+    <section class="budget-progress-card">
+
+        <h2>Monthly Budget Progress</h2>
+
+        <div class="progress-info">
+            <span>Budget used</span>
+            <strong>{{ budget_percentage|default:0 }}%</strong>
+        </div>
+
+        <div class="progress-track">
+            <div
+                class="progress-fill"
+                id="budgetProgressBar"
+                data-progress="{{ progress_width|default:0 }}">
+            </div>
+        </div>
+
+        <p class="budget-status">
+            {{ budget_status }}
+        </p>
+
+
+        <!-- Smart Budget Alerts -->
+
+        {% if budget <= 0 %}
+
+            <div class="budget-alert neutral">
+                ℹ️ Please set a monthly budget to start tracking your expenses.
+            </div>
+
+        {% elif alert_type == "danger" %}
+
+            <div class="budget-alert danger-message">
+
+                {% if budget_percentage >= 100 %}
+                    🚨 <strong>Budget Exceeded!</strong>
+                {% else %}
+                    ⚠️ <strong>Critical Budget Alert!</strong>
+                {% endif %}
+
+                <p>{{ budget_alert }}</p>
+
+                {% if exceeded_amount > 0 %}
+                    <p>
+                        Amount exceeded:
+                        ₹{{ exceeded_amount }}
+                    </p>
+                {% endif %}
+
+            </div>
+
+        {% elif alert_type == "warning" %}
+
+            <div class="budget-alert warning-message">
+                ⚠️ <strong>Budget Warning!</strong>
+                <p>{{ budget_alert }}</p>
+            </div>
+
+        {% else %}
+
+            <div class="budget-alert success-message">
+                ✓ <strong>Good Spending Habit!</strong>
+                <p>{{ budget_alert }}</p>
+            </div>
+
+        {% endif %}
+
+
+        <a href="{% url 'set_budget' %}" class="budget-btn">
+            Update Monthly Budget
+        </a>
+
+    </section>
+
+
+    <!-- Expense Charts -->
+    <section class="budget-charts">
+
+        <div class="budget-chart-card">
+            <h2>Category-wise Expenses</h2>
+
+            <div class="budget-chart-container">
+                <canvas id="expenseChart"></canvas>
+            </div>
+        </div>
+
+
+        <div class="budget-chart-card">
+            <h2>Expense Comparison</h2>
+
+            <div class="budget-chart-container">
+                <canvas id="barChart"></canvas>
+            </div>
+        </div>
+
+    </section>
+
+
+    <!-- Category Details -->
+    <section class="budget-details">
+
+        <h2>Spending by Category</h2>
+
+        {% for item in category_data %}
+
+            <div class="category-row">
+                <span>{{ item.category }}</span>
+                <strong>₹{{ item.total }}</strong>
+            </div>
+
+        {% empty %}
+
+            <p>No expenses recorded this month.</p>
+
+        {% endfor %}
+
+    </section>
+
+
+    <!-- Footer -->
+    <footer>
+        © 2026 FinBotics | Smart Money. Safe Future.
+    </footer>
+
+</div>
+
+
+<!-- Django Chart Data -->
+{{ chart_labels|json_script:"chart-labels" }}
+{{ chart_values|json_script:"chart-values" }}
+
+
+<!-- Chart.js -->
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    // Safe Budget Progress Bar
+    const progressBar = document.getElementById("budgetProgressBar");
+
+    if (progressBar) {
+        let progress = Number(progressBar.dataset.progress);
+
+        if (!Number.isFinite(progress)) {
+            progress = 0;
+        }
+
+        progress = Math.min(100, Math.max(0, progress));
+
+        progressBar.style.width = progress + "%";
+    }
+
+
+    // Read Django Chart Data
+    const labelsElement = document.getElementById("chart-labels");
+    const valuesElement = document.getElementById("chart-values");
+
+    let labels = [];
+    let values = [];
+
+    try {
+        labels = JSON.parse(labelsElement?.textContent || "[]");
+        values = JSON.parse(valuesElement?.textContent || "[]");
+
+        if (!Array.isArray(labels)) labels = [];
+        if (!Array.isArray(values)) values = [];
+
+        values = values.map(value => {
+            const number = Number(value);
+            return Number.isFinite(number) ? number : 0;
+        });
+
+    } catch (error) {
+        console.error("Error loading chart data:", error);
+    }
+
+
+    // Doughnut Chart
+    const expenseCanvas = document.getElementById("expenseChart");
+
+    if (expenseCanvas && labels.length > 0 && values.length > 0) {
+
+        new Chart(expenseCanvas, {
+
+            type: "doughnut",
+
+            data: {
+                labels: labels,
+
+                datasets: [{
+                    label: "Expenses",
+                    data: values,
+
+                    backgroundColor: [
+                        "#2563eb",
+                        "#16a34a",
+                        "#f59e0b",
+                        "#ef4444",
+                        "#8b5cf6",
+                        "#06b6d4",
+                        "#ec4899",
+                        "#64748b"
+                    ]
+                }]
+            },
+
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+
+                plugins: {
+                    legend: {
+                        position: "bottom"
+                    }
+                }
+            }
+
+        });
+
+    }
+
+
+    // Bar Chart
+    const barCanvas = document.getElementById("barChart");
+
+    if (barCanvas && labels.length > 0 && values.length > 0) {
+
+        new Chart(barCanvas, {
+
+            type: "bar",
+
+            data: {
+                labels: labels,
+
+                datasets: [{
+                    label: "Amount Spent (₹)",
+                    data: values,
+                    backgroundColor: "#2563eb",
+                    borderRadius: 8
+                }]
+            },
+
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+
+            }
+
+        });
+
+    }
+
+});
+
+</script>
+
+</body>
+</html>

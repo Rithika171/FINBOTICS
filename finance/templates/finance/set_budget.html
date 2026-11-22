@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FinBotics - Set Budget</title>
+</head>
+<body>
+    <h1>Set Monthly Budget</h1>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">
+            Save Budget
+        </button>
+    </form>
+    <br>
+    <a href="{% url 'budget_dashboard' %}">
+        View Budget Dashboard
+    </a>
+</body>
+</html>
