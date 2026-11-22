@@ -120,6 +120,9 @@ Steps
 7. Open the application in your browser:
    
    "http://127.0.0.1:8000/"
+8.open demo link
+
+     https://youtu.be/YA_6FUhBiF0
 
 Security Notes
 
