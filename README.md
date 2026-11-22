@@ -95,7 +95,7 @@ Steps
 
 1. Clone the repository:
    
-   "git clone https://github.com/YOUR-USERNAME/FinBotics.git"
+   "git clone https://github.com/Rithika171/FinBotics.git"
 
 2. Open the project folder:
    
